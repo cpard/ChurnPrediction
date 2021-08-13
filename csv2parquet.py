@@ -17,7 +17,7 @@ def convert(csv_file):
 
     reader = csv.open_csv(csv_file, convert_options=convert_opts)
 
-    writer = pq.ParquetWriter('example2.parquet', reader.schema)
+    writer = pq.ParquetWriter(csv_file, reader.schema)
 
     table = pa.Table.from_batches(reader, reader.schema)
     writer.write_table(table)
