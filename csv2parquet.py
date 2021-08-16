@@ -1,8 +1,9 @@
 import argparse
+
 import pyarrow as pa
+import pyarrow.parquet as pq
 from pyarrow import csv
 from pyarrow.csv import ConvertOptions
-import pyarrow.parquet as pq
 
 
 def parse_args():

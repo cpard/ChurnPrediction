@@ -1,8 +1,7 @@
 import argparse
+
 import duckdb
 import pandas
-
-from lifetimes.fitters.pareto_nbd_fitter import ParetoNBDFitter
 from lifetimes import BetaGeoFitter
 
 con = duckdb.connect(database=':memory:', read_only=False)
