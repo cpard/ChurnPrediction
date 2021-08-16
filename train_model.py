@@ -59,6 +59,8 @@ def create_features(db):
     model.fit(filtered_freqs['freq'], filtered_freqs['recency'], filtered_freqs['t'])
     print(model.summary)
 
+    model.save_model('churn_model.pkl')
+
 
 if __name__ == '__main__':
     args = parse_args()
