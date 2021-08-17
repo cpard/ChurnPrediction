@@ -12,12 +12,15 @@ pandas.set_option('display.max_columns', None)
 def parse_args():
     parser = argparse.ArgumentParser(description='Build a Churn Model')
     parser.add_argument('-p', '--parquet', help="the path to the Parquet file with the time series data.")
+    parser.add_argument('-e', '--event', help='the event we are going to use.')
     return parser.parse_args()
 
 
 def create_features(db):
-    max_date = con.execute("select max(date) from '" + db + "'").fetchall()[0][0]
-    initial_view = "create view filtered as select distinct user_id, date from '" + db + "'"
+    max_date = con.execute("select max(timestamp) from parquet_scan('" + db + "')").fetchall()[0][0]
+    initial_view = "create view filtered as select distinct user_id, timestamp as date " \
+                   "from parquet_scan('" + db + "') where event='" + args.event + "'"
+
     first_iteration = "create view first_iteration as select user_id, count(date)-1 as freq, min(date) as first, " \
                       "max(date) as last from filtered " \
                       "group by user_id "
@@ -53,6 +56,7 @@ def create_features(db):
 
     db_result = db_result.drop(['recency_year', 'recency_day', 'recency_month', 't_year', 't_month', 't_day'], axis=1)
 
+    print(db_result)
     filtered_freqs = db_result[db_result['freq'] > 0]
     model = BetaGeoFitter()
     model.fit(filtered_freqs['freq'], filtered_freqs['recency'], filtered_freqs['t'])
@@ -66,6 +70,9 @@ if __name__ == '__main__':
 
     if args.parquet is None:
         print("Where are the Events dude?")
+        quit()
+    if args.event is None:
+        print("What event should I use dude?")
         quit()
 
     create_features(args.parquet)
